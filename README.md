@@ -5,7 +5,7 @@ Deepsleep for ~60 minutes, wakes up, compares trap state to previous.  If sprung
 Then deepsleep again...
 
 To do:
-Connect to WiFi every 24 hours to check in.
-Add battery voltage to daily check in (and on sprung reports)
-Wake and post immediately when trap is sprung
-Check for successful Slack post
+- Connect to WiFi every 24 hours to check in.
+- Add battery voltage to daily check in (and on sprung reports)
+- Wake and post immediately when trap is sprung
+- Check for successful Slack post
