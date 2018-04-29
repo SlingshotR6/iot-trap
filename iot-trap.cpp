@@ -13,7 +13,7 @@ String MESSAGE2 = "Your #1 mouse trap has been sprung";
 String MESSAGE3 = "Your #2 rat trap has been sprung";
 String MESSAGE4 = "Your #2 mouse trap has been sprung";
 String message;
-String message1 = "Daily check-in...all systems OK. ";
+String message1;
 //------------------------------------------
 //IO Pins constants
 const int ratTrap1 = D5;
@@ -30,7 +30,7 @@ uint32_t ratTrap2State = 0;
 uint32_t ratTrap2LastState;
 uint32_t mouseTrap2State = 0;
 uint32_t mouseTrap2LastState;
-uint32_t deepSleepTime = 5e6; //3600e6;
+uint32_t deepSleepTime = 20e6; //3600e6;  //Change this to change the Deepsleep time (1e6 = 1sec)
 uint32_t counter;
 //------------------------------
 
@@ -70,12 +70,7 @@ void loop() {
   Serial.println("***************");
   Serial.println("start of loop");
   Serial.println("***************");
-
-  //------------------------------
-
-
-  
-    //------------------------------------------
+  //------------------------------------------
   //trap check
   ratTrap1State = digitalRead(ratTrap1);
   if (ratTrap1State != ratTrap1LastState && ratTrap1State == 1)
@@ -114,7 +109,6 @@ void loop() {
   ESP.rtcUserMemoryWrite(3, &mouseTrap2LastState, sizeof(mouseTrap2LastState));
 
   delay(500);
-
   //------------------------------------------
   //counter
   if (counter >= 24 )
@@ -131,20 +125,20 @@ void loop() {
   }
 
   ESP.rtcUserMemoryRead(4, &counter, sizeof(counter));
-  Serial.print("RTCMemory (after if/else statement ");
+  Serial.print("RTCMemory (after if/else statement) ");
   Serial.println(counter);
   Serial.println("***********");
   delay(500);
 
   //------------------------------------------
-  
+  //Deepsleep
   Serial.print("Going into deep sleep for ");
   Serial.print(deepSleepTime / 1000000);
   Serial.print(" seconds");
   ESP.deepSleep(deepSleepTime);
 }
 
-void post() {
+void post() {                    //Post to Slack when a trap is sprung.
   Serial.println("***************");
   Serial.println("start of post()");
   Serial.println("***************");
@@ -166,9 +160,9 @@ void post() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
-  //------------------------------
-
+  
+  //------------------------------------------
+  //Post to Slack
   Serial.println("Connecting to host...");
   WiFiClientSecure client;
   if (!client.connect(HOST, 443)) {
@@ -222,10 +216,24 @@ void post() {
   Serial.println("Request complete");
 }
 
-void post1() {
+void post1() {                    //Daily update post to Slack.
   Serial.println("***************");
   Serial.println("start of post1()");
   Serial.println("***************");
+
+  //------------------------------------------
+  //Daily message
+  String string1 = "Daily check-in...all systems OK. Trap Status: ";
+  string1 += "Rat trap 1: ";
+  string1 += ratTrap1State;
+  string1 += ". Mouse trap 1: ";
+  string1 += mouseTrap1State;
+  string1 += ". Rat trap 2: ";
+  string1 += ratTrap2State;
+  string1 += ". Mouse trap 2: ";
+  string1 += mouseTrap2State;
+
+  message1 = string1;
 
   //------------------------------------------
   //Wifi
@@ -245,8 +253,8 @@ void post1() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
-  //------------------------------
-
+  //------------------------------------------
+  //Post to Slack
   Serial.println("Connecting to host...");
   WiFiClientSecure client;
   if (!client.connect(HOST, 443)) {
