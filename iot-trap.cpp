@@ -13,7 +13,7 @@ String MESSAGE2 = "Your #1 mouse trap has been sprung";
 String MESSAGE3 = "Your #2 rat trap has been sprung";
 String MESSAGE4 = "Your #2 mouse trap has been sprung";
 String message;
-String message1;
+String message1 = "DAILY UPDATE";
 //------------------------------------------
 //IO Pins constants
 const int ratTrap1 = D5;
@@ -30,7 +30,8 @@ uint32_t ratTrap2State = 0;
 uint32_t ratTrap2LastState;
 uint32_t mouseTrap2State = 0;
 uint32_t mouseTrap2LastState;
-uint32_t deepSleepTime = 3600e6;
+uint32_t deepSleepTime = 5e6; //3600e6;
+uint32_t counter;
 //------------------------------
 
 void setup() {
@@ -46,6 +47,10 @@ void setup() {
   pinMode (ratTrap2, INPUT_PULLUP);
   pinMode (mouseTrap2, INPUT_PULLUP);
 
+  ESP.rtcUserMemoryRead(4, &counter, sizeof(counter));
+  Serial.print("RTCMemory just after booting ");
+  Serial.println(counter);
+  Serial.println("***********");
   ESP.rtcUserMemoryRead(0, &ratTrap1LastState, sizeof(ratTrap1LastState));
   Serial.print("RTCMemory_ratTrap1LastState ");
   Serial.println(ratTrap1LastState);
@@ -68,6 +73,29 @@ void loop() {
 
   //------------------------------
 
+  //------------------------------------------
+  //counter
+  if (counter >= 24 )
+  {
+    Serial.println("sending a message to Slack");
+    post1();
+    counter = 0;
+    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
+  }
+  else
+  {
+    counter++;
+    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
+  }
+
+  ESP.rtcUserMemoryRead(4, &counter, sizeof(counter));
+  Serial.print("RTCMemory (after if/else statement ");
+  Serial.println(counter);
+  Serial.println("***********");
+  delay(500);
+  
+    //------------------------------------------
+  //trap check
   ratTrap1State = digitalRead(ratTrap1);
   if (ratTrap1State != ratTrap1LastState && ratTrap1State == 1)
   {
