@@ -6,6 +6,7 @@ Then deepsleep again...
 
 To do:
 - Connect to WiFi every 24 hours to check in (done).
+- Add Slack user name
 - Add battery voltage to daily check in (and on sprung reports)
 - Wake and post immediately when trap is sprung
 - Check for successful Slack post
