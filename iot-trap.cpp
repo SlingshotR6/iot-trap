@@ -13,7 +13,7 @@ String MESSAGE2 = "Your #1 mouse trap has been sprung";
 String MESSAGE3 = "Your #2 rat trap has been sprung";
 String MESSAGE4 = "Your #2 mouse trap has been sprung";
 String message;
-String message1 = "DAILY UPDATE";
+String message1 = "Daily check-in...all systems OK. ";
 //------------------------------------------
 //IO Pins constants
 const int ratTrap1 = D5;
@@ -73,26 +73,7 @@ void loop() {
 
   //------------------------------
 
-  //------------------------------------------
-  //counter
-  if (counter >= 24 )
-  {
-    Serial.println("sending a message to Slack");
-    post1();
-    counter = 0;
-    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
-  }
-  else
-  {
-    counter++;
-    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
-  }
 
-  ESP.rtcUserMemoryRead(4, &counter, sizeof(counter));
-  Serial.print("RTCMemory (after if/else statement ");
-  Serial.println(counter);
-  Serial.println("***********");
-  delay(500);
   
     //------------------------------------------
   //trap check
@@ -134,6 +115,29 @@ void loop() {
 
   delay(500);
 
+  //------------------------------------------
+  //counter
+  if (counter >= 24 )
+  {
+    Serial.println("sending a message to Slack");
+    counter = 0;
+    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
+    post1();
+  }
+  else
+  {
+    counter++;
+    ESP.rtcUserMemoryWrite(4, &counter, sizeof(counter));
+  }
+
+  ESP.rtcUserMemoryRead(4, &counter, sizeof(counter));
+  Serial.print("RTCMemory (after if/else statement ");
+  Serial.println(counter);
+  Serial.println("***********");
+  delay(500);
+
+  //------------------------------------------
+  
   Serial.print("Going into deep sleep for ");
   Serial.print(deepSleepTime / 1000000);
   Serial.print(" seconds");
@@ -261,7 +265,7 @@ void post1() {
   request += HOST;
   request += "\r\n";
 
-  int len = message.length() + 12;  // JSON wrapper length
+  int len = message1.length() + 12;  // JSON wrapper length
   request += "Content-Length: ";
   request += len;
   request += "\r\n";
