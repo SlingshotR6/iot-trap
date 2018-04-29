@@ -7,11 +7,13 @@ const char* password = "yourPassword";
 //Slack
 #define HOST "hooks.slack.com"
 #define URL "/services/yourToken"
+#define URL1 "/services/yourTokenForDailyUpdate"
 String MESSAGE1 = "Your #1 rat trap has been sprung";
 String MESSAGE2 = "Your #1 mouse trap has been sprung";
 String MESSAGE3 = "Your #2 rat trap has been sprung";
 String MESSAGE4 = "Your #2 mouse trap has been sprung";
 String message;
+String message1;
 //------------------------------------------
 //IO Pins constants
 const int ratTrap1 = D5;
@@ -186,5 +188,82 @@ void post() {
   }
   Serial.println();
   Serial.println("Request complete");
+}
 
+void post1() {
+  Serial.println("***************");
+  Serial.println("start of post1()");
+  Serial.println("***************");
+
+  //------------------------------------------
+  //Wifi
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  //------------------------------
+
+  Serial.println("Connecting to host...");
+  WiFiClientSecure client;
+  if (!client.connect(HOST, 443)) {
+    Serial.println("Connection failed");
+    client.stop();
+    return;
+  }
+  Serial.println("Connected to host");
+
+  String request = "";
+  request += "POST ";
+  request += URL1;
+  request += " HTTP/1.1\r\n";
+
+  request += "Host: ";
+  request += HOST;
+  request += "\r\n";
+
+  int len = message.length() + 12;  // JSON wrapper length
+  request += "Content-Length: ";
+  request += len;
+  request += "\r\n";
+
+  request += "Accept: application/json\r\n";
+  request += "Connection: close\r\n";
+  request += "Content-Type: application/json\r\n";
+
+  request += "\r\n";
+
+  request += "{\"text\": \"";
+  request += message1;
+  request += "\"}";
+
+  Serial.print(request);
+  Serial.println();
+  client.print(request);
+
+  long timeout = millis() + 5000;
+  while (!client.available()) {
+    if (millis() > timeout) {
+      Serial.println("Request timed out");
+      client.stop();
+      return;
+    }
+  }
+  Serial.println("Response:");
+  while (client.available()) {
+    Serial.write(client.read());
+  }
+  Serial.println();
+  Serial.println("Request complete");
 }
