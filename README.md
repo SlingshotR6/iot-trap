@@ -12,7 +12,10 @@ Connect D0 to RST - this lets the ESP8266 wake from Deepsleep
 Connect battery (4.2v LiPo) to VIN & Ground.
 
 To do:
-- Connect to WiFi every 24 hours to check in.
+- Connect to WiFi every 24 hours to check in (done).
+- Add Slack user name
 - Add battery voltage to daily check in (and on sprung reports)
 - Wake and post immediately when trap is sprung
 - Check for successful Slack post
+- Set time of day for Daily Check-in
+- Correct RTC drift
